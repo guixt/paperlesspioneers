@@ -2,7 +2,9 @@ import { initGame } from './modules/startGame/initGame';
 import { setupWorld } from './modules/startGame/setupWorld';
 import { introDialogue } from './modules/startGame/introDialogue';
 import { pruefeRechnung } from './core/invoiceValidator';
+import { generateInvoice } from './core/invoiceGenerator';
 import { ScoringSystem } from './core/scoringSystem';
+import { reverseChargeEvent } from './modules/events/reverseCharge';
 
 function main() {
   initGame();
@@ -10,9 +12,13 @@ function main() {
   introDialogue();
 
   const scoring = new ScoringSystem();
-  const fakeInvoice = { kunde: 'Test GmbH', leistung: 'Beratung', betrag: 1000, steuersatz: 19, lieferdatum: '2024-01-01' };
-  const fehler = pruefeRechnung(fakeInvoice);
-  if (fehler.length === 0) scoring.addPunkte(10);
+  const invoice = generateInvoice('Test GmbH', 'Beratung', 1000, 19, '2024-01-01');
+  const fehler = pruefeRechnung(invoice);
+  if (fehler.length === 0) {
+    scoring.addPunkte(10);
+  }
+  reverseChargeEvent();
+  console.log('Invoice:', invoice);
   console.log('Score:', scoring.score);
   console.log('Fehler:', fehler);
 }
